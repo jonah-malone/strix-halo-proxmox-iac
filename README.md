@@ -37,6 +37,58 @@ This is a learning project to explore:
   - VBIOS extraction and management
   - Comprehensive verification checks
 
+### System Changes
+
+The `igpu-passthrough` role modifies the following files on Proxmox hosts:
+
+#### Bootloader Configuration
+
+**`/etc/default/grub`** (if using GRUB):
+
+```ini
+GRUB_CMDLINE_LINUX_DEFAULT="quiet amd_iommu=on iommu=pt video=efifb:off initcall_blacklist=sysfb_init"
+```
+
+**`/etc/kernel/cmdline`** (if using systemd-boot):
+
+```ini
+root=ZFS=rpool/ROOT/pve-1 boot=zfs quiet amd_iommu=on iommu=pt video=efifb:off initcall_blacklist=sysfb_init
+```
+
+#### Module Configuration
+
+**`/etc/modules-load.d/vfio.conf`**:
+
+```ini
+vfio
+vfio_iommu_type1
+vfio_pci
+vfio_virqfd
+```
+
+**`/etc/modprobe.d/vfio.conf`**:
+
+```ini
+options vfio-pci ids=1002:1586,1002:1640 disable_vga=1
+softdep amdgpu pre: vfio-pci
+softdep snd_hda_intel pre: vfio-pci
+```
+
+**`/etc/modprobe.d/blacklist-gpu.conf`**:
+
+```ini
+blacklist amdgpu
+blacklist radeon
+blacklist snd_hda_intel
+```
+
+#### ROM Files
+
+**`/usr/share/kvm/vbios_1002_1586.bin`** - Extracted from GPU VFCT ACPI table
+**`/usr/share/kvm/AMDGopDriver.rom`** - AMD GOP driver (92KB)
+
+**Note:** After applying changes, a system reboot is required.
+
 ## Resources
 
 This project uses resources from:
