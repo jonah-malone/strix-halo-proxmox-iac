@@ -123,10 +123,6 @@ blacklisted_drivers:
   - snd_hda_intel
 ```
 
-## Dependencies
-
-None
-
 ## Files
 
 The role requires the following files in `files/`:
