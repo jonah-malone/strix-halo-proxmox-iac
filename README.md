@@ -1,4 +1,4 @@
-# Spark Bare Metal - Lab Experiments
+# Framework Desktop Proxmox Custering - Lab Experiments
 
 ## Table of Contents
 
