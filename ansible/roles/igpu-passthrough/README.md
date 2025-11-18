@@ -299,5 +299,3 @@ Check:
 1. PCI IDs are correct (`lspci -nn | grep VGA`)
 2. VFIO modules are loaded (`lsmod | grep vfio`)
 3. Kernel parameters include vfio-pci IDs
-
-
