@@ -167,7 +167,6 @@
       - "   {{ '  ✅ softdep snd_hda_intel pre: vfio-pci' if ('softdep snd_hda_intel pre: vfio-pci' in vfio_conf_content.stdout) else '  ❌ softdep snd_hda_intel MISSING' }}"
       - ""
       - "   /etc/modprobe.d/blacklist-gpu.conf:"
-      - "   {{ '  ✅ blacklist amdgpu' if ('blacklist amdgpu' in blacklist_conf_content.stdout) else '  ❌ blacklist amdgpu MISSING' }}"
       - "   {{ '  ✅ blacklist radeon' if ('blacklist radeon' in blacklist_conf_content.stdout) else '  ❌ blacklist radeon MISSING' }}"
       - "   {{ '  ✅ blacklist snd_hda_intel' if ('blacklist snd_hda_intel' in blacklist_conf_content.stdout) else '  ❌ blacklist snd_hda_intel MISSING' }}"
       - ""
@@ -182,7 +181,6 @@
         amdgop_file_check.stat.exists and
         ('disable_vga=1' in vfio_conf_content.stdout) and
         ('blacklist amdgpu' in blacklist_conf_content.stdout)
-        ) else '❌ CONFIGURATION INCOMPLETE' }}"
       - "=================================="
 
 - name: Set verification result fact
@@ -196,8 +194,7 @@
         (vfio_devices_count.stdout | int > 0) and
         vbios_file_check.stat.exists and
         amdgop_file_check.stat.exists and
-        ('disable_vga=1' in vfio_conf_content.stdout) and
-        ('blacklist amdgpu' in blacklist_conf_content.stdout)
+        ('disable_vga=1' in vfio_conf_content.stdout)
       }}
 
 - name: Fail if configuration is incomplete

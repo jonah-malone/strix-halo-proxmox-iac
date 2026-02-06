@@ -1,0 +1,21 @@
+proxmox:
+  host: 192.168.1.x
+  node: pve00 # your node name here, mine is pve00
+  tested_version: "9.1.5"
+
+kernel:
+  pin_version: "6.14.11-4-pve"
+  blocked_versions:
+    - "6.17*"   # ISP genpd crash during warmup
+
+gpu:
+  pci_id: "0000:c1:00.0"
+  audio_pci_id: "0000:c1:00.1"
+  device_ids: "1002:1586,1002:1640"
+
+vm:
+  id: 100
+  name: fedora-server
+  cores: 8
+  memory_mb: 114688
+  disk_gb: 256

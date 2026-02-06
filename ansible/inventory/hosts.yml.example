@@ -1,0 +1,3 @@
+[proxmox_hosts]
+pve00 ansible_host=<PROXMOX_HOST_IP> ansible_user=<ROOT_OR_USER> ansible_python_interpreter=/usr/bin/python3
+
