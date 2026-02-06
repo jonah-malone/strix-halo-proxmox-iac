@@ -32,6 +32,5 @@ vfio_modules:
 
 # GPU drivers to blacklist
 blacklisted_drivers:
-  - amdgpu
   - radeon
   - snd_hda_intel
