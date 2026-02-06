@@ -1,0 +1,11 @@
+- name: Configure Proxmox host
+  hosts: proxmox_hosts
+  become: true
+  roles:
+    - host-config
+
+# - name: Configure guest
+#   hosts: proxmox_hosts
+#   become: true
+#   roles:
+#     - guest-config
