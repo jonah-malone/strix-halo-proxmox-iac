@@ -14,8 +14,11 @@ resource "proxmox_virtual_environment_vm" "fedora" {
   vm_id     = local.config.vm.id
   name      = local.config.vm.name
 
+  on_boot = false # warmup procedure must run before VM start
+
   agent {
     enabled = true
+    type    = "virtio"
   }
 
   bios    = "ovmf"
@@ -44,6 +47,14 @@ resource "proxmox_virtual_environment_vm" "fedora" {
     pre_enrolled_keys = true
   }
 
+  # Fedora ISO (cdrom) — uncomment when creating a new VM
+  # disk {
+  #   datastore_id = "local"
+  #   interface    = "ide2"
+  #   file_id      = proxmox_virtual_environment_download_file.fedora_iso.id
+  #   size         = 3
+  # }
+
   # Main disk
   disk {
     datastore_id = "local-lvm"
@@ -51,13 +62,6 @@ resource "proxmox_virtual_environment_vm" "fedora" {
     size         = local.config.vm.disk_gb
     discard      = "on"
     iothread     = true
-  }
-
-  # Fedora ISO
-  cdrom {
-    enabled   = true
-    file_id   = proxmox_virtual_environment_download_file.fedora_iso.id
-    interface = "ide2"
   }
 
   # Network
@@ -69,17 +73,23 @@ resource "proxmox_virtual_environment_vm" "fedora" {
 
   # GPU passthrough
   hostpci {
-    device   = local.config.gpu.pci_id
+    device   = "hostpci0"
+    id       = local.config.gpu.pci_id
     pcie     = true
     rom_file = "vbios_1002_1586.bin"
+    rombar   = true
+    xvga     = true
   }
 
   # Audio controller passthrough
   hostpci {
-    device   = local.config.gpu.audio_pci_id
+    device   = "hostpci1"
+    id       = local.config.gpu.audio_pci_id
     pcie     = true
     rom_file = "AMDGopDriver.rom"
+    rombar   = true
   }
 
-  boot_order = ["scsi0", "ide2", "net0"]
+  #boot_order = ["scsi0", "ide2", "net0"]
+  boot_order = ["scsi0", "net0"]
 }
