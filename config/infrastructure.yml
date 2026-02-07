@@ -25,3 +25,4 @@ vm:
   cores: 8
   memory_mb: 114688
   disk_gb: 256
+  iso_url: "https://download.fedoraproject.org/pub/fedora/linux/releases/43/Server/x86_64/iso/Fedora-Server-dvd-x86_64-43-1.6.iso"
