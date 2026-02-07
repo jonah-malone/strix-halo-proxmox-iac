@@ -1,0 +1,7 @@
+---
+# Install required packages on the guest VM
+
+- name: Install guest packages
+  ansible.builtin.dnf:
+    name: "{{ guest.packages }}"
+    state: present

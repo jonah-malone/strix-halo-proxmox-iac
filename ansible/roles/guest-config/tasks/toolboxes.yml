@@ -1,0 +1,15 @@
+---
+# Pull and create toolbox containers defined in infrastructure.yml
+# Users can swap the guest.toolboxes list for their own workload
+
+- name: Pull toolbox images
+  containers.podman.podman_image:
+    name: "{{ item.image }}"
+    state: present
+  loop: "{{ guest.toolboxes }}"
+  loop_control:
+    label: "{{ item.name }}"
+
+# TODO: Create toolbox containers from pulled images
+# toolbox create --image <image> <name>
+# This requires the toolbox CLI which wraps podman with userns/bind mounts

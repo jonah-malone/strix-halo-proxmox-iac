@@ -26,3 +26,19 @@ vm:
   memory_mb: 114688
   disk_gb: 256
   iso_url: "https://download.fedoraproject.org/pub/fedora/linux/releases/43/Server/x86_64/iso/Fedora-Server-dvd-x86_64-43-1.6.iso"
+
+# Guest workload configuration
+# Swap this section to change what the guest VM is set up for.
+# Default: AI/LLM inference via Fedora toolboxes
+# Alternative examples: GOW (Games on Whales), media server, etc.
+guest:
+  toolboxes:
+    - name: vulkan-radv
+      image: "docker.io/kyuz0/amd-strix-halo-toolboxes:vulkan-radv"
+      description: "Vulkan RADV toolbox for GPU compute"
+    # - name: rocm
+    #   image: "docker.io/kyuz0/amd-strix-halo-toolboxes:rocm"
+    #   description: "ROCm toolbox for HIP/OpenCL workloads"
+  packages:
+    - podman
+    - toolbox

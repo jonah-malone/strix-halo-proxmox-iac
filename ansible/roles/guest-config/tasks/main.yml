@@ -1,0 +1,13 @@
+---
+# Guest VM configuration
+# Runs inside the VM via SSH to set up workload toolboxes and dependencies
+
+- name: Import package tasks
+  ansible.builtin.import_tasks: packages.yml
+  tags:
+    - packages
+
+- name: Import toolbox tasks
+  ansible.builtin.import_tasks: toolboxes.yml
+  tags:
+    - toolboxes
