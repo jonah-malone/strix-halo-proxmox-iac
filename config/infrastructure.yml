@@ -7,6 +7,12 @@ kernel:
   pin_version: "6.14.11-4-pve"
   blocked_versions:
     - "6.17*"   # ISP genpd crash during warmup
+  # Boot params to verify in bootloader config (/etc/kernel/cmdline or /etc/default/grub)
+  # Note, some boards (e.g. Framework Desktop) enable IOMMU in BIOS, so amd_iommu=on is not needed here
+  required_boot_params:
+    - "iommu=pt"
+    - "video=efifb:off"
+    - "initcall_blacklist=sysfb_init"
 
 gpu:
   pci_id: "0000:c1:00.0"

@@ -95,12 +95,6 @@
     path: "/usr/share/kvm/{{ amdgop_rom }}"
   register: amdgop_file_check
 
-- name: Check kernel cmdline parameters
-  ansible.builtin.shell:
-    cmd: cat /proc/cmdline
-  register: kernel_cmdline
-  changed_when: false
-
 - name: Check /etc/modprobe.d/vfio.conf content
   ansible.builtin.shell:
     cmd: cat /etc/modprobe.d/vfio.conf
@@ -154,10 +148,8 @@
       - "   VBIOS: {{ '✅ EXISTS (' + (vbios_file_check.stat.size | string) + ' bytes)' if vbios_file_check.stat.exists else '❌ MISSING' }}"
       - "   AMDGopDriver: {{ '✅ EXISTS (' + (amdgop_file_check.stat.size | string) + ' bytes)' if amdgop_file_check.stat.exists else '❌ MISSING' }}"
       - ""
-      - "7. KERNEL PARAMETERS (Active in /proc/cmdline):"
-      - "   {{ '✅ amd_iommu=on' if ('amd_iommu=on' in kernel_cmdline.stdout) else '❌ amd_iommu=on MISSING' }}"
-      - "   {{ '✅ iommu=pt' if ('iommu=pt' in kernel_cmdline.stdout) else '❌ iommu=pt MISSING' }}"
-      - "   {{ '✅ video=efifb:off' if ('video=efifb:off' in kernel_cmdline.stdout) else '⚠️  video=efifb:off MISSING' }}"
+      - "7. BOOT PARAMETERS (configured in {{ 'GRUB' if 'grub' in bootloader_type.stdout else '/etc/kernel/cmdline' }}):"
+      - "   {% set cmdline = systemd_boot_config.stdout | default('') if 'systemd-boot' in bootloader_type.stdout else grub_config.stdout | default('') %}{% for param in kernel.required_boot_params %}{{ '✅ ' + param if param in cmdline else '❌ ' + param + ' MISSING' }}{{ '\n   ' if not loop.last else '' }}{% endfor %}"
       - ""
       - "8. MODPROBE CONFIGURATION FILES:"
       - "   /etc/modprobe.d/vfio.conf:"
@@ -171,7 +163,7 @@
       - "   {{ '  ✅ blacklist snd_hda_intel' if ('blacklist snd_hda_intel' in blacklist_conf_content.stdout) else '  ❌ blacklist snd_hda_intel MISSING' }}"
       - ""
       - "=================================="
-      - "OVERALL STATUS: {{ '✅ READY FOR GPU PASSTHROUGH' if (
+      - "{% set cmdline = systemd_boot_config.stdout | default('') if 'systemd-boot' in bootloader_type.stdout else grub_config.stdout | default('') %}OVERALL STATUS: {{ '✅ READY FOR GPU PASSTHROUGH' if (
         (iommu_check.stdout | length > 0) and
         (gpu_driver_name.stdout | trim == 'vfio-pci') and
         (audio_driver_name.stdout | trim == 'vfio-pci') and
@@ -180,12 +172,14 @@
         vbios_file_check.stat.exists and
         amdgop_file_check.stat.exists and
         ('disable_vga=1' in vfio_conf_content.stdout) and
-        ('blacklist amdgpu' in blacklist_conf_content.stdout)
+        (kernel.required_boot_params | select('in', cmdline) | list | length == kernel.required_boot_params | length)
+        ) else '❌ CONFIGURATION INCOMPLETE' }}"
       - "=================================="
 
 - name: Set verification result fact
   ansible.builtin.set_fact:
     gpu_passthrough_ready: >-
+      {% set cmdline = systemd_boot_config.stdout | default('') if 'systemd-boot' in bootloader_type.stdout else grub_config.stdout | default('') %}
       {{
         (iommu_check.stdout | length > 0) and
         (gpu_driver_name.stdout | trim == 'vfio-pci') and
@@ -194,7 +188,8 @@
         (vfio_devices_count.stdout | int > 0) and
         vbios_file_check.stat.exists and
         amdgop_file_check.stat.exists and
-        ('disable_vga=1' in vfio_conf_content.stdout)
+        ('disable_vga=1' in vfio_conf_content.stdout) and
+        (kernel.required_boot_params | select('in', cmdline) | list | length == kernel.required_boot_params | length)
       }}
 
 - name: Fail if configuration is incomplete

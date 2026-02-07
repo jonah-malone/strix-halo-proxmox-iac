@@ -1,6 +1,8 @@
 - name: Configure Proxmox host
   hosts: proxmox_hosts
   become: true
+  vars_files:
+    - ../config/infrastructure.yml
   roles:
     - host-config
 
